@@ -1,0 +1,13 @@
+{
+  "name": "holocron-api",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Zero-dependency Node.js API of mocked Star Wars characters, with API keys, rate limits and a classical reference manual",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}

@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Star Wars Characters API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4eedf;
+    --paper-deep: #ebe2cc;
+    --ink: #2a2118;
+    --ink-soft: #5d4e3d;
+    --accent: #7b1e1e;
+    --gold: #9c7a2e;
+    --rule: #cbbb96;
+    --code-bg: #eee5d0;
+    --ok: #2f5d34;
+    --bad: #8a2020;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1b1713;
+      --paper-deep: #241e18;
+      --ink: #ece2cb;
+      --ink-soft: #b5a68a;
+      --accent: #d58b6c;
+      --gold: #c9a65a;
+      --rule: #4a3f30;
+      --code-bg: #221c16;
+      --ok: #8fc48f;
+      --bad: #e08a7a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "EB Garamond", Georgia, "Times New Roman", serif;
+    font-size: 19px;
+    line-height: 1.6;
+  }
+  .page { max-width: 780px; margin: 0 auto; padding: 56px 16px 80px; }
+
+  /* ----- title page ----- */
+  header { text-align: center; padding-bottom: 28px; border-bottom: 3px double var(--rule); }
+  .kicker {
+    font-variant: small-caps; letter-spacing: .18em; color: var(--gold);
+    font-size: .95rem; margin: 0 0 10px;
+  }
+  h1 {
+    font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600;
+    font-size: clamp(2.3rem, 7vw, 3.4rem); line-height: 1.1; margin: 0;
+  }
+  .subtitle { font-style: italic; color: var(--ink-soft); margin: 14px auto 0; max-width: 34em; }
+  .fleuron { color: var(--accent); font-size: 1.5rem; margin: 18px 0 0; }
+
+  /* ----- contents ----- */
+  nav { margin: 32px auto 8px; max-width: 26em; }
+  nav h2 { text-align: center; font-size: 1.1rem; margin: 0 0 8px; }
+  nav ol { list-style: none; padding: 0; margin: 0; }
+  nav li { display: flex; gap: 10px; align-items: baseline; }
+  nav li .num { color: var(--accent); min-width: 2.4em; text-align: right; }
+  nav a { color: var(--ink); text-decoration: none; }
+  nav a:hover { color: var(--accent); }
+  nav li .dots { flex: 1; border-bottom: 1px dotted var(--rule); transform: translateY(-5px); }
+
+  /* ----- sections ----- */
+  section { margin-top: 48px; }
+  h2 {
+    font-family: "Cormorant Garamond", Georgia, serif; font-weight: 600;
+    font-variant: small-caps; letter-spacing: .06em; font-size: 1.7rem;
+    margin: 0 0 6px; text-align: center;
+  }
+  h2 .num { color: var(--accent); margin-right: .35em; }
+  .rule { text-align: center; color: var(--gold); margin: 0 0 18px; letter-spacing: .5em; }
+  h3 { font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.3rem; font-style: italic; font-weight: 500; margin: 26px 0 6px; }
+  p { margin: 0 0 14px; hyphens: auto; }
+  .dropcap::first-letter {
+    float: left; font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 3.6em; line-height: .85; padding: 6px 8px 0 0; color: var(--accent);
+  }
+  a { color: var(--accent); }
+
+  code, pre, kbd, input, select { font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace; }
+  code { font-size: .82em; background: var(--code-bg); padding: 1px 5px; border-radius: 2px; }
+  pre {
+    background: var(--code-bg); border-left: 3px solid var(--gold);
+    padding: 14px 16px; overflow-x: auto; font-size: .78rem; line-height: 1.5; margin: 0 0 16px;
+  }
+  pre code { background: none; padding: 0; font-size: inherit; }
+
+  /* ----- glossary ----- */
+  dl.fields { margin: 0 0 12px; }
+  dl.fields dt { font-weight: 500; margin-top: 8px; }
+  dl.fields dt code { color: var(--accent); }
+  dl.fields dd { margin: 0 0 0 1.4em; color: var(--ink-soft); }
+
+  /* ----- tables (book style: rules only, no boxes) ----- */
+  .table-wrap { overflow-x: auto; margin: 0 0 16px; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  thead th {
+    font-variant: small-caps; letter-spacing: .06em; font-weight: 500; text-align: left;
+    border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px 10px;
+  }
+  tbody td { padding: 6px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 2px solid var(--ink); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* ----- console ----- */
+  .console { background: var(--paper-deep); border: 1px solid var(--rule); padding: 18px; }
+  .console .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+  .console label { display: block; font-variant: small-caps; letter-spacing: .06em; font-size: .9rem; color: var(--ink-soft); }
+  .console .field { flex: 1 1 220px; min-width: 0; }
+  input, select {
+    width: 100%; font-size: .85rem; padding: 8px 10px; color: var(--ink);
+    background: var(--paper); border: 1px solid var(--rule); border-radius: 0;
+  }
+  input:focus, select:focus, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+  button {
+    font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.05rem; font-weight: 600;
+    font-variant: small-caps; letter-spacing: .1em; cursor: pointer;
+    color: var(--paper); background: var(--accent); border: 1px solid var(--accent); padding: 6px 22px;
+  }
+  button:hover { filter: brightness(1.1); }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .9rem; margin-bottom: 12px; }
+  .presets button {
+    background: none; color: var(--accent); border: none; padding: 0; font-size: .95rem;
+    font-family: "EB Garamond", Georgia, serif; font-variant: normal; letter-spacing: 0; font-weight: 400;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+  .status { font-size: .95rem; margin: 4px 0 8px; min-height: 1.6em; }
+  .status .code { font-weight: 500; }
+  .status .ok { color: var(--ok); }
+  .status .bad { color: var(--bad); }
+  .status .meta { color: var(--ink-soft); font-style: italic; }
+  #output { max-height: 460px; margin: 0; background: var(--paper); }
+
+  .namebtn {
+    background: none; border: none; padding: 0; color: var(--accent); cursor: pointer;
+    font: inherit; font-variant: normal; letter-spacing: 0; text-align: left;
+    text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  footer { margin-top: 64px; padding-top: 18px; border-top: 3px double var(--rule); text-align: center; color: var(--ink-soft); font-style: italic; font-size: .95rem; }
+
+  @media (max-width: 560px) {
+    body { font-size: 17px; }
+    .page { padding-top: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <p class="kicker">The Galactic Archive</p>
+    <h1>The Star Wars Characters API</h1>
+    <p class="subtitle">A reference manual for its endpoints, responses, errors and limits, with a console for trying requests.</p>
+    <div class="fleuron" aria-hidden="true">&#x2042;</div>
+  </header>
+
+  <nav aria-label="Contents">
+    <h2>Contents</h2>
+    <ol>
+      <li><span class="num">I.</span><a href="#introduction">Introduction</a><span class="dots"></span></li>
+      <li><span class="num">II.</span><a href="#documentation">Documentation</a><span class="dots"></span></li>
+      <li><span class="num">III.</span><a href="#response">The Response</a><span class="dots"></span></li>
+      <li><span class="num">IV.</span><a href="#listing">Listing &amp; Filtering</a><span class="dots"></span></li>
+      <li><span class="num">V.</span><a href="#errors">Errors</a><span class="dots"></span></li>
+      <li><span class="num">VI.</span><a href="#limits">Rate Limits</a><span class="dots"></span></li>
+      <li><span class="num">VII.</span><a href="#curl">Access via cURL</a><span class="dots"></span></li>
+      <li><span class="num">VIII.</span><a href="#console">The Console</a><span class="dots"></span></li>
+      <li><span class="num">IX.</span><a href="#archive">The Archive</a><span class="dots"></span></li>
+    </ol>
+  </nav>
+
+  <section id="introduction">
+    <h2><span class="num">I.</span>Introduction</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p class="dropcap">This API keeps a small, mocked record of characters from the nine Skywalker saga films. For each one it gives their allegiances, a short biography, and the films they appear in, grouped into named sections. Every request needs an API key, and every key has a daily request limit set by its plan.</p>
+  </section>
+
+  <section id="documentation">
+    <h2><span class="num">II.</span>Documentation</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p>To look up a character, request the URL below with the character's id in the path and your API key in the <code>key</code> parameter.</p>
+    <pre><code>GET /api/characters/luke-skywalker?key=YOUR_API_KEY</code></pre>
+    <p>Ids are lowercase names joined by hyphens, such as <code>darth-vader</code>, <code>obi-wan-kenobi</code> or <code>r2-d2</code>. The Archive in section IX lists all of them.</p>
+    <h3>Demo keys</h3>
+    <p>These keys work on this local server only:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Key</th><th>Plan</th><th class="num">Daily limit</th></tr></thead>
+        <tbody>
+          <tr><td><code>demo-trial-key</code></td><td>Trial</td><td class="num">5</td></tr>
+          <tr><td><code>demo-free-key</code></td><td>Free</td><td class="num">1,000</td></tr>
+          <tr><td><code>demo-basic-key</code></td><td>Basic</td><td class="num">10,000</td></tr>
+          <tr><td><code>demo-premium-key</code></td><td>Premium</td><td class="num">50,000</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="response">
+    <h2><span class="num">III.</span>The Response</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <dl class="fields">
+      <dt><code>id</code></dt><dd>The id you requested.</dd>
+      <dt><code>name</code></dt><dd>The character's full name.</dd>
+    </dl>
+
+    <h3>Affiliation</h3>
+    <p>True or false for each faction. A character can belong to several.</p>
+    <dl class="fields">
+      <dt><code>jedi</code></dt><dd>Whether the character was trained in the Jedi Order.</dd>
+      <dt><code>sith</code></dt><dd>Whether the character served the Sith.</dd>
+      <dt><code>republic</code></dt><dd>Whether the character served the Galactic Republic.</dd>
+      <dt><code>rebellion</code></dt><dd>Whether the character fought for the Rebel Alliance.</dd>
+      <dt><code>empire</code></dt><dd>Whether the character served the Galactic Empire.</dd>
+      <dt><code>resistance</code></dt><dd>Whether the character fought for the Resistance.</dd>
+      <dt><code>first_order</code></dt><dd>Whether the character served the First Order.</dd>
+    </dl>
+
+    <h3>Biography</h3>
+    <dl class="fields">
+      <dt><code>species</code></dt><dd>The character's species.</dd>
+      <dt><code>gender</code></dt><dd>The character's gender, or <code>null</code> for droids.</dd>
+      <dt><code>homeworld</code></dt><dd>The planet of birth or manufacture, or <code>null</code> if unknown.</dd>
+      <dt><code>birth_year</code></dt><dd>Year of birth relative to the Battle of Yavin (<code>BBY</code> before, <code>ABY</code> after).</dd>
+      <dt><code>height_cm</code></dt><dd>Height in centimetres.</dd>
+      <dt><code>mass_kg</code></dt><dd>Mass in kilograms.</dd>
+    </dl>
+
+    <h3>Appearances</h3>
+    <dl class="fields">
+      <dt><code>movies</code></dt><dd>The films the character appears in, in episode order. Each gives <code>episode</code>, <code>title</code>, <code>release_year</code> and <code>trilogy</code>.</dd>
+      <dt><code>movie_count</code></dt><dd>How many films the character appears in.</dd>
+      <dt><code>first_appearance</code></dt><dd>The earliest film the character appeared in, by release date.</dd>
+      <dt><code>trilogies</code></dt><dd>The trilogies the character appears in: Prequel, Original or Sequel.</dd>
+    </dl>
+
+    <h3>Example</h3>
+    <p>This response is fetched live from this server:</p>
+    <pre><code id="example">Loading…</code></pre>
+  </section>
+
+  <section id="listing">
+    <h2><span class="num">IV.</span>Listing &amp; Filtering</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p>Leave out the id to get every character. The response wraps them as <code>{ "count": n, "results": [ … ] }</code>, with each result shaped as in section III.</p>
+    <pre><code>GET /api/characters?key=YOUR_API_KEY</code></pre>
+    <p>You can narrow the list with any of these parameters, alone or together:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Parameter</th><th>Meaning</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><code>name</code></td><td>Name contains this text (case-insensitive)</td><td><code>name=sky</code></td></tr>
+          <tr><td><code>movie</code></td><td>Appears in this episode, 1 to 9</td><td><code>movie=4</code></td></tr>
+          <tr><td><code>affiliation</code></td><td>Belongs to this faction (see section III)</td><td><code>affiliation=jedi</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="errors">
+    <h2><span class="num">V.</span>Errors</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p>Errors are JSON as well, in the form <code>{ "error": "…", "message": "…" }</code>.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th class="num">Status</th><th>When</th></tr></thead>
+        <tbody>
+          <tr><td class="num">400</td><td>A filter has a value the API doesn't accept, such as <code>movie=12</code>.</td></tr>
+          <tr><td class="num">401</td><td>The <code>key</code> parameter is missing or not a known key.</td></tr>
+          <tr><td class="num">404</td><td>No character has that id, or no route matches the path. A missing route also echoes the <code>path</code>.</td></tr>
+          <tr><td class="num">405</td><td>A method other than GET was used. The <code>Allow</code> header says <code>GET</code>.</td></tr>
+          <tr><td class="num">429</td><td>The key has used up its daily limit. <code>Retry-After</code> gives the seconds until the reset.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="limits">
+    <h2><span class="num">VI.</span>Rate Limits</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p>Each key may make a fixed number of requests per day, depending on its plan (see the table in section II). Every request with a valid key counts, including ones that end in a 400 or 404. The count resets at 00:00:00 UTC every day.</p>
+    <p>Each API response reports where the key stands:</p>
+    <dl class="fields">
+      <dt><code>X-RateLimit-Limit</code></dt><dd>The key's daily limit.</dd>
+      <dt><code>X-RateLimit-Remaining</code></dt><dd>How many requests are left today.</dd>
+      <dt><code>X-RateLimit-Reset</code></dt><dd>When the count resets, as a Unix timestamp in seconds.</dd>
+    </dl>
+    <p>The count is kept in memory, so restarting the server resets it.</p>
+  </section>
+
+  <section id="curl">
+    <h2><span class="num">VII.</span>Access via cURL</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p>You can call the API from a terminal or from any programming language.</p>
+    <pre><code>curl "http://localhost:3000/api/characters/{id}?key={api_key}"
+curl "http://localhost:3000/api/characters?movie=4&amp;affiliation=rebellion&amp;key=demo-free-key"</code></pre>
+    <p>In Windows PowerShell, type <code>curl.exe</code> rather than <code>curl</code>.</p>
+  </section>
+
+  <section id="console">
+    <h2><span class="num">VIII.</span>The Console</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p>Send a request to this server and see its status, rate-limit headers and body.</p>
+    <form class="console" id="console-form">
+      <div class="row">
+        <div class="field" style="flex-grow:3">
+          <label for="path">Path</label>
+          <input id="path" value="/api/characters/luke-skywalker" spellcheck="false" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="key">API key</label>
+          <select id="key">
+            <option value="demo-free-key">demo-free-key</option>
+            <option value="demo-trial-key">demo-trial-key</option>
+            <option value="demo-basic-key">demo-basic-key</option>
+            <option value="demo-premium-key">demo-premium-key</option>
+            <option value="not-a-real-key">not-a-real-key</option>
+            <option value="">(no key)</option>
+          </select>
+        </div>
+      </div>
+      <div class="presets" aria-label="Example requests">
+        <button type="button" data-path="/api/characters/darth-vader">One character</button>
+        <button type="button" data-path="/api/characters?affiliation=jedi">All Jedi</button>
+        <button type="button" data-path="/api/characters?movie=1">Episode I cast</button>
+        <button type="button" data-path="/api/characters?name=sky">Name contains “sky”</button>
+        <button type="button" data-path="/api/characters/jar-jar">Unknown character</button>
+        <button type="button" data-path="/api/planets">Unknown route</button>
+      </div>
+      <button type="submit">Send request</button>
+      <p class="status" id="status" aria-live="polite"></p>
+      <pre><code id="output">The response will appear here.</code></pre>
+    </form>
+  </section>
+
+  <section id="archive">
+    <h2><span class="num">IX.</span>The Archive</h2>
+    <div class="rule" aria-hidden="true">· · ·</div>
+    <p>Every character on record. Click a name to open it in the console.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Id</th><th>Species</th><th>Homeworld</th><th class="num">Films</th></tr></thead>
+        <tbody id="archive-body"><tr><td colspan="5">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>Mocked data for local testing.</footer>
+</div>
+
+<script>
+  const $ = (sel) => document.querySelector(sel);
+  const DOCS_KEY = 'demo-free-key'; // used for the live example and the archive
+
+  function buildUrl(path, key) {
+    const url = new URL(path, location.origin);
+    if (key) url.searchParams.set('key', key);
+    return url;
+  }
+
+  async function getJson(path, key) {
+    const res = await fetch(buildUrl(path, key));
+    return { res, body: await res.json() };
+  }
+
+  // ----- console -----
+  async function send() {
+    const path = $('#path').value.trim() || '/';
+    const key = $('#key').value;
+    const status = $('#status');
+    const output = $('#output');
+    status.textContent = 'Sending…';
+    try {
+      const { res, body } = await getJson(path, key);
+      status.replaceChildren();
+      const code = document.createElement('span');
+      code.className = 'code ' + (res.ok ? 'ok' : 'bad');
+      code.textContent = `HTTP ${res.status} ${res.statusText}`;
+      status.append(code);
+      const limit = res.headers.get('X-RateLimit-Limit');
+      if (limit) {
+        const meta = document.createElement('span');
+        meta.className = 'meta';
+        meta.textContent = ` · ${res.headers.get('X-RateLimit-Remaining')} of ${limit} requests left today`;
+        status.append(meta);
+      }
+      output.textContent = JSON.stringify(body, null, 2);
+    } catch (err) {
+      status.textContent = 'The request failed. Is the server running?';
+      output.textContent = String(err);
+    }
+  }
+
+  $('#console-form').addEventListener('submit', (e) => { e.preventDefault(); send(); });
+  document.querySelectorAll('.presets button').forEach((btn) => {
+    btn.addEventListener('click', () => { $('#path').value = btn.dataset.path; send(); });
+  });
+
+  function openInConsole(id) {
+    $('#path').value = '/api/characters/' + id;
+    $('#console').scrollIntoView({ behavior: 'smooth' });
+    send();
+  }
+
+  // ----- live example + archive -----
+  getJson('/api/characters/luke-skywalker', DOCS_KEY)
+    .then(({ body }) => { $('#example').textContent = JSON.stringify(body, null, 2); })
+    .catch(() => { $('#example').textContent = 'Could not load the example. Is the server running?'; });
+
+  getJson('/api/characters', DOCS_KEY).then(({ body }) => {
+    const tbody = $('#archive-body');
+    tbody.replaceChildren();
+    for (const c of body.results) {
+      const tr = document.createElement('tr');
+      const nameCell = document.createElement('td');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'namebtn';
+      btn.textContent = c.name;
+      btn.addEventListener('click', () => openInConsole(c.id));
+      nameCell.append(btn);
+      tr.append(nameCell);
+      for (const [text, cls] of [
+        [c.id, ''],
+        [c.biography.species, ''],
+        [c.biography.homeworld ?? 'Unknown', ''],
+        [c.appearances.movie_count, 'num'],
+      ]) {
+        const td = document.createElement('td');
+        td.textContent = text;
+        if (cls) td.className = cls;
+        tr.append(td);
+      }
+      tbody.append(tr);
+    }
+  }).catch(() => {
+    $('#archive-body').innerHTML = '<tr><td colspan="5">Could not load the archive.</td></tr>';
+  });
+</script>
+</body>
+</html>

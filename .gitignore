@@ -1,0 +1,4 @@
+node_modules/
+.env
+# Assessment brief, kept local
+prompt.txt
